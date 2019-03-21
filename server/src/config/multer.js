@@ -3,28 +3,33 @@ const path = require("path");
 const crypto = require("crypto");
 
 // The goal is to do the uploads of the files
-module.exports = {
-  dest: path.resolve(__dirname, "..", "..", "temp", "uploads"),
-  storage: multer.diskStorage({
-    destination: (req, file, callback) => {
-      callback(null, path.resolve(__dirname, "..", "..", "temp", "uploads"));
+
+const storageTypes = {
+  local: multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, path.resolve(__dirname, "..", "..", "temp", "uploads"));
     },
-    filename: (req, file, callback) => {
+    filename: (req, file, cb) => {
       crypto.randomBytes(16, (err, hash) => {
         if (err) {
-          callback(err);
+          cb(err);
         }
 
-        const fileName = `${hash.toString("hex")}-${file.originalname}`;
+        file.key = `${hash.toString("hex")}-${file.originalname}`;
 
-        callback(null, fileName);
+        cb(null, file.key);
       });
     }
-  }),
+  })
+  //AWS S3 was not implemented
+};
+module.exports = {
+  dest: path.resolve(__dirname, "..", "..", "temp", "uploads"),
+  storage: storageTypes["local"],
   limits: {
     fileSize: 2 * 1024 * 1024
   },
-  fileFilter: (req, file, callback) => {
+  fileFilter: (req, file, cb) => {
     const allouwedMimes = [
       "image/jpeg",
       "image/pjpeg",
@@ -33,9 +38,9 @@ module.exports = {
     ];
 
     if (allouwedMimes.includes(file.mimetype)) {
-      callback(null, true);
+      cb(null, true);
     } else {
-      callback(new Error("Invalid File Type"));
+      cb(new Error("Invalid File Type"));
     }
   }
 };
