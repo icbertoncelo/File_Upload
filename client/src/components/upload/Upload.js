@@ -2,7 +2,6 @@ import React, { Component } from "react";
 
 // Upload Box
 import Dropzone from "react-dropzone";
-
 // Styles
 import { DropContainer, UploadMessage } from "./styles";
 
@@ -20,8 +19,10 @@ export default class Upload extends Component {
   };
 
   render() {
+    const { onUpload } = this.props;
+
     return (
-      <Dropzone accept="image/*" onDropAccepted={() => {}}>
+      <Dropzone accept="image/*" onDropAccepted={onUpload}>
         {({ getRootProps, getInputProps, isDragActive, isDragReject }) => (
           <DropContainer
             {...getRootProps()}
