@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 
-export default class Upload extends Component {
+export default class Styles extends Component {
   render() {
     return <div />;
   }
