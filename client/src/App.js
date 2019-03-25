@@ -4,6 +4,7 @@ import GlobalStyle from "./styles/global";
 import { Container, Content } from "./styles";
 
 import Upload from "./components/upload/Upload";
+import FileList from "./components/fileList/FileList";
 
 class App extends Component {
   render() {
@@ -11,6 +12,7 @@ class App extends Component {
       <Container>
         <Content>
           <Upload />
+          <FileList />
         </Content>
         <GlobalStyle />
       </Container>
