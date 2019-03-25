@@ -3,6 +3,7 @@ const morgan = require("morgan");
 const mongoose = require("mongoose");
 const path = require("path");
 const dotenv = require("dotenv");
+const cors = require("cors");
 
 // Make the node file read the .env file
 dotenv.config();
@@ -14,6 +15,7 @@ mongoose.connect(process.env.MONGO_URL, {
   useNewUrlParser: true
 });
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
