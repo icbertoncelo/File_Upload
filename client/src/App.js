@@ -50,15 +50,28 @@ class App extends Component {
 
     data.append("file", uploadedFile.file, uploadedFile.name);
 
-    api.post("posts", data, {
-      onDownloadProgress: e => {
-        const progress = parseInt(Math.round((e.loaded * 100) / e.total));
+    api
+      .post("posts", data, {
+        onDownloadProgress: e => {
+          const progress = parseInt(Math.round((e.loaded * 100) / e.total));
 
+          this.updateFile(uploadedFile.id, {
+            progress
+          });
+        }
+      })
+      .then(res => {
         this.updateFile(uploadedFile.id, {
-          progress
+          uploaded: true,
+          id: res.data._id,
+          url: res.data.url
         });
-      }
-    });
+      })
+      .catch(res => {
+        this.updateFile(uploadedFile.id, {
+          error: true
+        });
+      });
   };
 
   render() {
