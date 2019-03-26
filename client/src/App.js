@@ -15,12 +15,27 @@ class App extends Component {
     uploadedFiles: []
   };
 
+  async componentDidMount() {
+    const response = await api.get("posts");
+
+    this.setState({
+      uploadedFiles: response.data.map(file => ({
+        id: file._id,
+        name: file.name,
+        readableSize: filesize(file.size),
+        preview: file.url,
+        uploaded: true,
+        url: file.url
+      }))
+    });
+  }
+
   handleUpload = files => {
     const uploadedFiles = files.map(file => ({
       file,
       id: uniqueId(),
       name: file.name,
-      readbleSize: filesize(file.size),
+      readableSize: filesize(file.size),
       preview: URL.createObjectURL(file),
       progress: 0,
       uploaded: false,
@@ -52,7 +67,7 @@ class App extends Component {
 
     api
       .post("posts", data, {
-        onDownloadProgress: e => {
+        onUploadProgress: e => {
           const progress = parseInt(Math.round((e.loaded * 100) / e.total));
 
           this.updateFile(uploadedFile.id, {
@@ -60,19 +75,31 @@ class App extends Component {
           });
         }
       })
-      .then(res => {
+      .then(response => {
         this.updateFile(uploadedFile.id, {
           uploaded: true,
-          id: res.data._id,
-          url: res.data.url
+          id: response.data._id,
+          url: response.data.url
         });
       })
-      .catch(res => {
+      .catch(() => {
         this.updateFile(uploadedFile.id, {
           error: true
         });
       });
   };
+
+  handleDelete = async id => {
+    await api.delete(`posts/${id}`);
+
+    this.setState({
+      uploadedFiles: this.state.uploadedFiles.filter(file => file.id !== id)
+    });
+  };
+
+  componentWillUnmount() {
+    this.state.uploadedFiles.forEach(file => URL.revokeObjectURL(file.preview));
+  }
 
   render() {
     const { uploadedFiles } = this.state;
@@ -81,7 +108,9 @@ class App extends Component {
       <Container>
         <Content>
           <Upload onUpload={this.handleUpload} />
-          {!!uploadedFiles.length && <FileList files={uploadedFiles} />}
+          {!!uploadedFiles.length && (
+            <FileList files={uploadedFiles} onDelete={this.handleDelete} />
+          )}
         </Content>
         <GlobalStyle />
       </Container>
